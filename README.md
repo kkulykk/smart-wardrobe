@@ -1,1 +1,2 @@
-# smart-wardrobe
+# Smart Wardrobe
+

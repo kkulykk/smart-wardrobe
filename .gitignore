@@ -102,3 +102,11 @@ dist
 
 # TernJS port file
 .tern-port
+
+/.idea
+/.vscode
+/models/*
+/src/wardrobe/*
+.DS_Store
+package-lock.json
+__pycache__

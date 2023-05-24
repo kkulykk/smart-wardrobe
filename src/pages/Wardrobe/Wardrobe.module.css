@@ -1,0 +1,54 @@
+.container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px
+}
+
+.title {
+    margin: 0 15px;
+}
+
+.items {
+    overflow-y: scroll;
+    margin: 30px 0;
+}
+
+.content {
+    text-transform:capitalize;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 700px;
+    height: 750px;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 350px;
+}
+
+.heading {
+    margin: 20px 0;
+}
+
+.imageGrid {
+    display: flex;
+    align-items: center;
+    max-height: 500px;
+    max-width: 600px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.image {
+    object-fit: cover;
+    height: 220px;
+    width: 190px;
+}
