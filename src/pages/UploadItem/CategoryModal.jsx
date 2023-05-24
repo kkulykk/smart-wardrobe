@@ -26,7 +26,7 @@ export default function CategoryModal(props) {
             <Layer zIndex={zIndex}>
                 <Modal
                     heading={isLoading ? "Give us a second" : "Did we get it right?"}
-                    subHeading={isLoading ? "We are detecting what kind of clothes that is": "Change the item category if needed"}
+                    subHeading={isLoading ? "We are processing your request": "Change the item category if needed"}
                     align="start"
                     onDismiss={() => handleClose()}
                     footer={
@@ -38,9 +38,10 @@ export default function CategoryModal(props) {
                     }
                     size="sm"
                     accessibilityModalLabel={""}>
-                    {!category ? <Spinner show={isLoading} accessibilityLabel="Example spinner"/> :
+                    {isLoading ? <Spinner show={isLoading} accessibilityLabel="Example spinner"/> :
                         <SelectList
                             id="selectlistexample1"
+                            disabled={isLoading}
                             label="Category"
                             value={category?.value}
                             onChange={(e) => {

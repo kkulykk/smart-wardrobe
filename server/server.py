@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, Form, Body
 from fastapi.middleware.cors import CORSMiddleware
+from transparent_background import Remover
 import uvicorn
 import numpy as np
 import io
@@ -17,6 +18,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+remover = Remover()
 classification_model = tf.keras.models.load_model('../models/model_AlexNet.h5')
 
 classes = [
@@ -38,10 +40,13 @@ SAVE_DIRECTORY = "../src/wardrobe/"
 async def predict(file: UploadFile = File(...)):
     img = await file.read()
     image = io.BytesIO(img)
+    out = remover.process(Image.open(image))
+    Image.fromarray(out).save('output.png')
     image = tf.keras.preprocessing.image.load_img(
-        image, target_size=(200, 200))
+        "output.png", target_size=(200, 200))
     image = tf.keras.preprocessing.image.img_to_array(image)
     prediction = classification_model.predict(tf.expand_dims(image, 0))[0]
+    os.remove("output.png")
 
     return classes[np.argmax(prediction)]
 
@@ -54,9 +59,10 @@ async def save(file: UploadFile = File(...), category: str = Form(...)):
     os.makedirs(class_directory, exist_ok=True)
 
     file_path = os.path.join(class_directory, unique_filename)
-    with open(file_path + file.filename, 'wb') as f:
-        contents = await file.read()
-        f.write(contents)
+    contents = await file.read()
+    image = io.BytesIO(contents)
+    out = remover.process(Image.open(image))
+    Image.fromarray(out).save(f"{file_path}.png")
 
     return "OK"
 
@@ -66,7 +72,7 @@ async def wardrobe():
     image_categories = []
     directory_path = "../src/wardrobe"
 
-    for root, dirs, files in os.walk(directory_path):
+    for root, _, files in os.walk(directory_path):
         if root != directory_path:
             category = {
                 'title': os.path.basename(root),

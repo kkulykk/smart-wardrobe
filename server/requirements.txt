@@ -3,3 +3,4 @@ uvicorn==0.22.0
 numpy==1.24.3
 tensorflow==2.13.0rc0
 image==1.5.33
+transparent-background==1.2.4

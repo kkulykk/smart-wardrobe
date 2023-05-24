@@ -86,7 +86,7 @@ const UploadItem = () => {
                     <Button disabled={!files.length} onClick={() => handleRecognize()} color="red" size="lg" text="Recognize"/>
                     <Button onClick={() => navigate('/')} size="lg" text="Back"/>
                 </div>
-                <CategoryModal category={category} setCategory={setCategory} setisLoading={isLoading}
+                <CategoryModal category={category} setCategory={setCategory} isLoading={isLoading}
                                isModalVisible={isCategoryModalOpen}
                                handleSave={handleSave}
                                setModalVisible={setCategoryModalOpen}/>
