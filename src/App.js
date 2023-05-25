@@ -6,6 +6,7 @@ import UploadItem from "./pages/UploadItem/UploadItem";
 import Wardrobe from "./pages/Wardrobe/Wardrobe";
 
 import './App.css';
+import 'gestalt/dist/gestalt.css';
 
 function App() {
     return (

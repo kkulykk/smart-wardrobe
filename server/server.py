@@ -7,6 +7,8 @@ import io
 import os
 import uuid
 import tensorflow as tf
+from tensorflow.keras import metrics
+from tensorflow.keras.applications import resnet
 import numpy as np
 from PIL import Image
 
@@ -20,6 +22,7 @@ app.add_middleware(
 )
 remover = Remover()
 classification_model = tf.keras.models.load_model('../models/model_AlexNet.h5')
+siamese_embedding = tf.keras.models.load_model('../models/siameese_embedding.h5')
 
 classes = [
     {"label": 'Dress', "value": 'dress'},
@@ -34,6 +37,18 @@ classes = [
 ]
 
 SAVE_DIRECTORY = "../src/wardrobe/"
+TARGET_SHAPE = (200, 200)
+
+def preprocess_image(filename):
+    """
+    Load the specified file as a JPEG image, preprocess it and
+    resize it to the target shape.
+    """
+    image_string = tf.io.read_file(filename)
+    image = tf.image.decode_jpeg(image_string, channels=3)
+    image = tf.image.convert_image_dtype(image, tf.float32)
+    image = tf.image.resize(image, TARGET_SHAPE)
+    return image
 
 
 @app.post('/classify')
@@ -81,7 +96,7 @@ async def wardrobe():
 
             for file in files:
                 if file.lower().endswith(('.png', '.jpg', '.jpeg')):
-                    image_path = os.path.join(root, file)
+                    image_path = os.path.join(root, file).replace('\\', '/')
                     category['images'].append(image_path[7:])
 
             image_categories.append(category)
@@ -91,9 +106,23 @@ async def wardrobe():
 
 @app.post('/match')
 async def match(path: str = Body(), imageCategory: str = Body(), matchingCategory: str = Body()):
-    # TODO: add method handler, return the image itself first and then the best matches
+    directory_path = f"../src/wardrobe/{matchingCategory}"
+    sim_paths = []
+    image = preprocess_image("../src/"+path)
+    image_embedding = siamese_embedding(resnet.preprocess_input(np.array([image])))
+    cosine_similarity = metrics.CosineSimilarity()
 
-    return [path, "wardrobe/top/0c82bd1f-734e-4887-be18-332c906914dff2368692-5695-415e-aa9c-e3d510fdd5aa.jpg", "wardrobe/top/0c82bd1f-734e-4887-be18-332c906914dff2368692-5695-415e-aa9c-e3d510fdd5aa.jpg", "wardrobe/top/0c82bd1f-734e-4887-be18-332c906914dff2368692-5695-415e-aa9c-e3d510fdd5aa.jpg"]
+    for file_name in os.listdir(directory_path):
+        full_path = directory_path+'/'+file_name
+        match_image = preprocess_image(full_path)
+        match_embedding = siamese_embedding(resnet.preprocess_input(np.array([match_image])))
+        similarity = cosine_similarity(image_embedding, match_embedding)
+        sim_paths.append(tuple((similarity, full_path)))
+
+    sim_paths.sort(key = lambda x: x[0], reverse=True)
+    paths = list(sim_path[1][7:] for sim_path in sim_paths)
+
+    return paths[:min(3, len(paths))]
 
 
 if __name__ == '__main__':
