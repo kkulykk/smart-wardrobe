@@ -49,6 +49,22 @@ def preprocess_image(filename):
     return image
 
 
+def euclidean_distance(vects):
+    """Find the Euclidean distance between two vectors.
+
+    Arguments:
+        vects: List containing two tensors of same length.
+
+    Returns:
+        Tensor containing euclidean distance
+        (as floating point value) between vectors.
+    """
+
+    x, y = vects
+    sum_square = tf.math.reduce_sum(tf.math.square(x - y), axis=1, keepdims=True)
+    return tf.math.sqrt(tf.math.maximum(sum_square, tf.keras.backend.epsilon()))
+
+
 @app.post('/classify')
 async def predict(file: UploadFile = File(...)):
     img = await file.read()
@@ -108,16 +124,18 @@ async def match(path: str = Body(), matchingCategory: str = Body()):
     sim_paths = []
     image = preprocess_image("../src/"+path)
     image_embedding = siamese_embedding(resnet.preprocess_input(np.array([image])))
-    cosine_similarity = metrics.CosineSimilarity()
+    print(image_embedding)
+    cosine_similarity = metrics.CosineSimilarity(axis=1)
 
     for file_name in os.listdir(directory_path):
         full_path = directory_path+'/'+file_name
         match_image = preprocess_image(full_path)
         match_embedding = siamese_embedding(resnet.preprocess_input(np.array([match_image])))
-        similarity = cosine_similarity(image_embedding, match_embedding)
+        print(match_embedding)
+        similarity = euclidean_distance((image_embedding, match_embedding))
         sim_paths.append(tuple((similarity, full_path)))
 
-    sim_paths.sort(key = lambda x: x[0], reverse=True)
+    sim_paths.sort(key = lambda x: x[0])
     paths = list(sim_path[1][7:] for sim_path in sim_paths)
     paths.insert(0, path)
 
