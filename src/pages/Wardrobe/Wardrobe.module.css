@@ -41,7 +41,6 @@
 .imageGrid {
     display: flex;
     align-items: center;
-    max-height: 500px;
     max-width: 600px;
     flex-wrap: wrap;
     gap: 15px;

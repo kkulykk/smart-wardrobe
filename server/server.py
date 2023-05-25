@@ -21,7 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 remover = Remover()
-classification_model = tf.keras.models.load_model('../models/model_AlexNet.h5')
+classification_model = tf.keras.models.load_model('../models/model_AlexNet_amateur.h5')
 siamese_embedding = tf.keras.models.load_model('../models/siameese_embedding.h5')
 
 classes = [
@@ -56,7 +56,7 @@ async def predict(file: UploadFile = File(...)):
     out = remover.process(Image.open(image))
     Image.fromarray(out).save('output.png')
     image = tf.keras.preprocessing.image.load_img(
-        "output.png", target_size=(200, 200))
+        "output.png", color_mode="grayscale", target_size=(200, 200))
     image = tf.keras.preprocessing.image.img_to_array(image)
     prediction = classification_model.predict(tf.expand_dims(image, 0))[0]
     os.remove("output.png")
@@ -133,12 +133,15 @@ async def delete_item(path: str = Body()):
             raise HTTPException(status_code=404, detail="File not found")
 
         os.remove(image_path)
+        parent_folder = os.path.dirname(image_path)
+
+        if not os.listdir(parent_folder):
+            os.rmdir(parent_folder)
 
         return "OK"
     except Exception as e:
         error_message = str(e)
         error_response = {"detail": error_message}
-
         return error_response
 
 if __name__ == '__main__':
