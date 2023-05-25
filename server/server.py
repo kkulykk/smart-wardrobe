@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Form, Body
+from fastapi import FastAPI, UploadFile, File, Form, Body, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from transparent_background import Remover
 import uvicorn
@@ -27,8 +27,6 @@ siamese_embedding = tf.keras.models.load_model('../models/siameese_embedding.h5'
 classes = [
     {"label": 'Dress', "value": 'dress'},
     {"label": 'Hat', "value": 'hat'},
-    {"label": 'Jumpsuit', "value": 'jumpsuit'},
-    {"label": 'Legwear', "value": 'legwear'},
     {"label": 'Outwear', "value": 'outwear'},
     {"label": 'Pants', "value": 'pants'},
     {"label": 'Shoes', "value": 'shoes'},
@@ -105,7 +103,7 @@ async def wardrobe():
 
 
 @app.post('/match')
-async def match(path: str = Body(), imageCategory: str = Body(), matchingCategory: str = Body()):
+async def match(path: str = Body(), matchingCategory: str = Body()):
     directory_path = f"../src/wardrobe/{matchingCategory}"
     sim_paths = []
     image = preprocess_image("../src/"+path)
@@ -121,9 +119,27 @@ async def match(path: str = Body(), imageCategory: str = Body(), matchingCategor
 
     sim_paths.sort(key = lambda x: x[0], reverse=True)
     paths = list(sim_path[1][7:] for sim_path in sim_paths)
+    paths.insert(0, path)
 
     return paths[:min(3, len(paths))]
 
+
+@app.post('/delete-item')
+async def delete_item(path: str = Body()):
+    try:
+        image_path = f"../src/{path}"
+
+        if not os.path.exists(image_path):
+            raise HTTPException(status_code=404, detail="File not found")
+
+        os.remove(image_path)
+
+        return "OK"
+    except Exception as e:
+        error_message = str(e)
+        error_response = {"detail": error_message}
+
+        return error_response
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=8000)

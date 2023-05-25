@@ -52,8 +52,6 @@ export default function CategoryModal(props) {
                             {[
                                 {label: 'Dress', value: 'dress'},
                                 {label: 'Hat', value: 'hat'},
-                                {label: 'Jumpsuit', value: 'jumpsuit'},
-                                {label: 'Legwear', value: 'legwear'},
                                 {label: 'Outwear', value: 'outwear'},
                                 {label: 'Pants', value: 'pants'},
                                 {label: 'Shoes', value: 'shoes'},

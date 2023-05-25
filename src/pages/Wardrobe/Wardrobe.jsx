@@ -13,6 +13,7 @@ const Wardrobe = () => {
     const [images, setImages] = useState([])
     const [item, setItem] = useState(null)
     const [isGenerateOpen, setGenerateOpen] = useState(false)
+    const [categoriesAvailable, setCategoriesAvailable] = useState([])
 
     const getWardrobe = async () => {
         setIsLoading(true)
@@ -21,6 +22,13 @@ const Wardrobe = () => {
             const response = await axios.get('http://localhost:8000/wardrobe');
 
             setImages(response.data)
+
+            const categories = response.data.map(item => ({
+                label: item.title.charAt(0).toUpperCase() + item.title.slice(1),
+                value: item.title.toLowerCase()
+            }));
+
+            setCategoriesAvailable(categories)
         } catch (error) {
             console.error(error);
         }
@@ -66,7 +74,8 @@ const Wardrobe = () => {
                     <Button onClick={() => navigate('/')} size="lg" text="Back"/>
                 </div>
             </div>
-            <WardrobeItemModal image={item} isOpen={isGenerateOpen} setIsOpen={setGenerateOpen}/>
+            <WardrobeItemModal image={item} isOpen={isGenerateOpen} setIsOpen={setGenerateOpen}
+                               getWardrobe={getWardrobe} categoriesAvailable={categoriesAvailable}/>
         </div>
     )
 }

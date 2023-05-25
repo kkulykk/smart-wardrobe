@@ -7,15 +7,15 @@ import {
     Flex,
     Layer,
     Modal,
-    SelectList,
+    SelectList
 } from 'gestalt';
 import styles from "./Wardrobe.module.css";
 
 export default function WardrobeItemModal(props) {
-    const {isOpen, setIsOpen, image} = props
+    const {isOpen, setIsOpen, image, getWardrobe, categoriesAvailable} = props
     const [isLoading, setIsLoading] = useState(false)
     const [matchedImages, setMatchedImages] = useState(null)
-    const [matchingCategory, setMatchingCategory] = useState({label: 'Dress', value: 'dress'})
+    const [matchingCategory, setMatchingCategory] = useState(categoriesAvailable[0])
     const HEADER_ZINDEX = new FixedZIndex(10);
     const zIndex = new CompositeZIndex([HEADER_ZINDEX]);
 
@@ -26,7 +26,7 @@ export default function WardrobeItemModal(props) {
     const handleMatch = async () => {
         setIsLoading(true)
 
-        const body = {"path": image.image, "imageCategory": image.category, "matchingCategory": matchingCategory.value}
+        const body = {"path": image.image, "matchingCategory": matchingCategory.value}
 
         try {
             const response = await axios.post('http://localhost:8000/match', JSON.stringify(body), {
@@ -41,6 +41,27 @@ export default function WardrobeItemModal(props) {
         }
 
         setIsLoading(false)
+    }
+
+    const handleDelete = async () => {
+        setIsLoading(true)
+
+        const body = image.image
+
+        try {
+            await axios.post('http://localhost:8000/delete-item', JSON.stringify(body), {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+        } catch (error) {
+            console.error(error);
+        }
+        setIsLoading(false)
+        setIsOpen(false)
+
+        await getWardrobe();
     }
 
 
@@ -70,11 +91,14 @@ export default function WardrobeItemModal(props) {
                     align="start"
                     onDismiss={() => setIsOpen(false)}
                     footer={
-                        <Flex justifyContent="end" gap={2}>
-                            <Button onClick={() => setIsOpen(false)} color="gray" text="Back"/>
-                            {!matchedImages ?
-                                <Button onClick={() => handleMatch()} disabled={isLoading} color="red"
-                                        text="Generate outfit"/> : null}
+                        <Flex justifyContent="between" alignItems={"center"} gap={2}>
+                            {!matchedImages ? <Button onClick={() => handleDelete()} disabled={isLoading} text={"Remove"}/>: null}
+                            <Flex justifyContent="end" gap={2}>
+                                <Button onClick={() => setIsOpen(false)} color="gray" text="Back"/>
+                                {!matchedImages ?
+                                    <Button onClick={() => handleMatch()} disabled={isLoading} color="red"
+                                            text="Generate outfit"/> : null}
+                            </Flex>
                         </Flex>
                     }
                     size="sm"
@@ -103,17 +127,7 @@ export default function WardrobeItemModal(props) {
                                 }}
                                 size="lg"
                             >
-                                {[
-                                    {label: 'Dress', value: 'dress'},
-                                    {label: 'Hat', value: 'hat'},
-                                    {label: 'Jumpsuit', value: 'jumpsuit'},
-                                    {label: 'Legwear', value: 'legwear'},
-                                    {label: 'Outwear', value: 'outwear'},
-                                    {label: 'Pants', value: 'pants'},
-                                    {label: 'Shoes', value: 'shoes'},
-                                    {label: 'Skirt', value: 'skirt'},
-                                    {label: 'Top', value: 'top'}
-                                ].map(({label, value}) => (
+                                {categoriesAvailable.map(({label, value}) => (
                                     <SelectList.Option key={label} label={label} value={value}/>
                                 ))}
                             </SelectList>
