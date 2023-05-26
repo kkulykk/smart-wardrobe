@@ -15,24 +15,26 @@ This project aims to provide an intelligent solution for managing your wardrobe 
 
 To set up the Smart Wardrobe system locally, follow these steps:
 
-1. Clone the repository:
+1. Download the [models](https://drive.google.com/file/d/1iR8BF3As2roXZdprnVHAXmc3TuRHzq18/view?usp=share_link) and move to the root directory
+
+2. Clone the repository:
 ```
 git clone https://github.com/your-username/smart-wardrobe.git
 ```
-2. Install the required dependencies. You may use a virtual environment to keep your dependencies isolated:
+3. Install the required dependencies. You may use a virtual environment to keep your dependencies isolated:
 ```
 cd smart-wardrobe
 npm i
 cd ./server
 pip install -r requirements.txt
 ```
-3. Launch the application:
+4. Launch the application:
 ```
 python server.py
 cd ..
 npm start
 ```
-4. Access the Smart Wardrobe system by visiting http://localhost:3000 in your web browser.
+5. Access the Smart Wardrobe system by visiting http://localhost:3000 in your web browser.
 
 ## Demo
 
