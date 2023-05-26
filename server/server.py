@@ -22,7 +22,7 @@ app.add_middleware(
 )
 remover = Remover()
 classification_model = tf.keras.models.load_model('../models/model_AlexNet_amateur.h5')
-siamese_embedding = tf.keras.models.load_model('../models/siameese_embedding.h5')
+siamese_embedding = tf.keras.models.load_model('../models/siameese_embedding_new.h5')
 
 classes = [
     {"label": 'Dress', "value": 'dress'},
